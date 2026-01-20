@@ -1,0 +1,16 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # ===============================
+    # Force HTTPS
+    # ===============================
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # ===============================
+    # Redirect to Laravel public folder
+    # ===============================
+    RewriteCond %{REQUEST_URI} !^/Plantsware2/public/
+    RewriteRule ^(.*)$ /Plantsware2/public/$1 [L]
+
+</IfModule>

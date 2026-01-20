@@ -1,0 +1,144 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\ProductController as FrontendProductController;
+use App\Http\Controllers\Frontend\BlogController as FrontendBlogController;
+use App\Http\Controllers\Frontend\CartController;
+use App\Http\Controllers\Frontend\CheckoutController;
+use App\Http\Controllers\Frontend\UserDashboardController;
+use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\SubcategoryController;
+use App\Http\Controllers\Admin\BlogController;
+use App\Http\Controllers\Admin\SliderController;
+use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\Admin\HeaderFooterController;
+use App\Http\Controllers\Admin\ProductManagementController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Auth\LoginController;
+
+// =====================
+// Frontend Routes
+// =====================
+
+// Home & Pages
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Product Related
+Route::get('products', [FrontendProductController::class, 'index'])->name('products.index');
+Route::get('product/{slug}', [FrontendProductController::class, 'show'])->name('product.show');
+Route::get('categories', [FrontendProductController::class, 'categories'])->name('categories');
+Route::get('category/{slug}', [FrontendProductController::class, 'category'])->name('category.show');
+Route::get('sub-category/{slug}', [FrontendProductController::class, 'subcategory'])->name('subcategory.show');
+
+// Blog
+Route::get('blog', [FrontendBlogController::class, 'index'])->name('blog.index');
+Route::get('blog/{slug}', [FrontendBlogController::class, 'show'])->name('blog.show');
+Route::get('blog-categories', [FrontendBlogController::class, 'categories'])->name('blog.categories');
+Route::get('blog-category/{slug}', [FrontendBlogController::class, 'category'])->name('blog.category.show');
+
+// Cart
+Route::prefix('cart')->name('cart.')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('index');
+    Route::post('add/{product}', [CartController::class, 'add'])->name('add');
+    Route::post('update/{id}', [CartController::class, 'update'])->name('update');
+    Route::delete('remove/{cart}', [CartController::class, 'remove'])->name('remove');
+    Route::post('clear', [CartController::class, 'clear'])->name('clear');
+});
+
+// Wishlist
+Route::prefix('wishlist')->name('wishlist.')->group(function () {
+    Route::get('/', [CartController::class, 'wishlist'])->name('index');
+    Route::post('add/{product}', [CartController::class, 'addToWishlist'])->name('add');
+    Route::delete('remove/{product}', [CartController::class, 'removeFromWishlist'])->name('remove');
+});
+
+// Checkout
+Route::prefix('checkout')->name('checkout.')->group(function () {
+    Route::get('address', [CheckoutController::class, 'address'])->name('address');
+    Route::post('address', [CheckoutController::class, 'saveAddress'])->name('saveAddress');
+    Route::get('/', [CheckoutController::class, 'index'])->name('index');
+    Route::post('place-order', [CheckoutController::class, 'placeOrder'])->name('placeOrder');
+    Route::get('order/{order}/confirmation', [CheckoutController::class, 'confirmation'])->name('confirmation');
+});
+
+// =====================
+// Authentication Routes
+// =====================
+
+// User login/logout/social
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+Route::get('auth/google', [LoginController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [LoginController::class, 'handleGoogleCallback']);
+
+// =====================
+// Static Pages
+// =====================
+Route::get('about', function () {
+    return view('view.about');
+})->name('about');
+
+Route::get('privacy-policy', function () {
+    return view('view.privacypolicy');
+})->name('privacy-policy');
+
+Route::get('terms-conditions', function () {
+    return view('view.termsandconditions');
+})->name('terms-conditions');
+
+Route::get('refund-policy', function () {
+    return view('view.refundpolicy');
+})->name('refund-policy');
+
+// =====================
+// Authenticated User Dashboard
+// =====================
+Route::middleware('auth')->group(function () {
+    Route::get('/user/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
+});
+
+// =====================
+// Admin Routes
+// =====================
+Route::prefix('admin')->name('admin.')->group(function () {
+    // Guest routes (login etc)
+    Route::middleware('guest:admin')->group(function () {
+        Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
+        Route::post('login', [AuthController::class, 'login'])->name('login.post');
+    });
+
+    // Authenticated admin routes
+    Route::middleware('auth:admin')->group(function () {
+        Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Product Management
+        Route::resource('products', ProductController::class);
+
+        // Orders
+        Route::resource('orders', OrderController::class)->only(['index', 'show']);
+        Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+
+        // Categories/Subcategories/Blogs/etc.
+        Route::resource('categories', CategoryController::class);
+        Route::resource('subcategories', SubcategoryController::class);
+        Route::resource('blogs', BlogController::class);
+        Route::resource('sliders', SliderController::class);
+        Route::resource('testimonials', TestimonialController::class);
+
+        // Header/Footer Settings
+        Route::get('settings', [HeaderFooterController::class, 'index'])->name('settings');
+        Route::post('settings', [HeaderFooterController::class, 'update'])->name('settings.update');
+
+        // Product Management Custom Flow
+        Route::get('products-management', [ProductManagementController::class, 'categories'])->name('products.management');
+        Route::get('categories/{category}/subcategories', [ProductManagementController::class, 'subcategories'])->name('categories.subcategories');
+        Route::get('categories/{category}/subcategories/create', [ProductManagementController::class, 'createSubcategory'])->name('categories.subcategories.create');
+        Route::post('categories/{category}/subcategories', [ProductManagementController::class, 'storeSubcategory'])->name('categories.subcategories.store');
+        Route::get('subcategories/{subcategory}/products', [ProductManagementController::class, 'products'])->name('subcategories.products');
+    });
+});
