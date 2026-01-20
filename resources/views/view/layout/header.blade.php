@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-
+ 
 <head>
     <title>Plantly</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Blog sharing -->
+     <meta property="og:title" content="{{ $blog->title ?? 'Plantly Blog' }}">
+    <meta property="og:description" content="{{ Str::limit(strip_tags($blog->excerpt ?? ''), 150) }}">
+    <meta property="og:image" content="{{ isset($blog->image) ? asset('storage/'.$blog->image) : asset('assets/images/logo-1.png') }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:type" content="article">
+
+    <meta name="twitter:card" content="summary_large_image">
+
+     <!-- Blog sharing end  -->
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/fav-icon.png') }}">
 
@@ -297,7 +308,9 @@
                                 </ul>
                             </li>
                             <li><a href="{{ url('about') }}">About Plantsware</a></li>
-                            <li><a href="{{ url('blog-categories') }}">Blog</a></li>
+                            <!-- <li><a href="{{ url('blog-categories') }}">Blog</a></li> -->
+                            <li><a href="{{ route('blog.index') }}">Blog</a></li>
+
                         </ul>
                     </div>
                 </div>

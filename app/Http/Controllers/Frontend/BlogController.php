@@ -9,7 +9,22 @@ use Illuminate\Http\Request;
 
 class BlogController extends Controller
 {
-    public function show($slug)
+
+ 
+
+    //  Multiple blogs 
+
+public function allBlogs()
+{
+    $blogs = Blog::where('is_active', 1)
+                 ->with('tags')
+                 ->latest('published_at')
+                 ->paginate(9);
+
+    return view('admin.blogs.all-blogs', compact('blogs'));
+}
+    // end here 
+    public function show($slug) 
     {
         $blog = Blog::where('slug', $slug)->where('is_active', true)->firstOrFail();
         $relatedBlogs = Blog::where('blog_category_id', $blog->blog_category_id)
@@ -24,13 +39,15 @@ class BlogController extends Controller
     public function categories()
     {
         $categories = BlogCategory::where('is_active', true)->with('blogs')->get();
-        return view('view.blogcategory', compact('categories'));
+        // return view('view.blogcategory', compact('categories'));
+        //  return view('admin.blogs.all-blogs', compact('blogs'));
     }
 
     public function category($slug)
     {
         $category = BlogCategory::where('slug', $slug)->where('is_active', true)->firstOrFail();
         $blogs = Blog::where('blog_category_id', $category->id)->where('is_active', true)->paginate(12);
-        return view('view.blogcategory', compact('category', 'blogs'));
+        // return view('view.blogcategory', compact('category', 'blogs'));
+        //  return view('admin.blogs.all-blogs', compact('blogs'));
     }
 }

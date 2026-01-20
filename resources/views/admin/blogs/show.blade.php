@@ -12,7 +12,7 @@
                 <!-- @if($blog->image)
                     <img src="{{ $blog->image_url }}" alt="{{ $blog->title }}" class="img-fluid mb-4" style="max-height:400px;">
                 @endif -->
-
+ 
                 @if($blog->image)
                     <img src="{{ $blog->image_url }}" 
                         alt="{{ $blog->title }}" 
@@ -25,6 +25,7 @@
                 <div class="blog-content">
                     {!! $blog->content !!}   {{-- Very important: {!! !!} renders HTML --}}
                 </div>
+                
 
                 <hr>
 <!-- 

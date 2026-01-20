@@ -10,10 +10,10 @@ use App\Models\Blog;
 use App\Models\Testimonial;
 use App\Models\HeaderFooter;
 use Illuminate\Http\Request;
-
+ 
 class HomeController extends Controller
 {
-    public function index()
+public function index()
 {
     $categories = Category::active()->ordered()->get();
     $sliders = Slider::active()->ordered()->get();
@@ -53,7 +53,7 @@ class HomeController extends Controller
         ->get();
 
     $testimonials = Testimonial::active()->latest()->take(8)->get();
-    $blogs = Blog::active()->latest()->take(6)->get();
+    $blogs = Blog::active()->latest()->take(3)->get();  // ← Only this line changed
 
     return view('view.index', compact(
         'categories', 'sliders', 'newArrivals',

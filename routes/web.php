@@ -26,10 +26,13 @@ Route::get('products', [FrontendProductController::class, 'index'])->name('produ
 Route::get('categories', [FrontendProductController::class, 'categories'])->name('categories');
 Route::get('category/{slug}', [FrontendProductController::class, 'category'])->name('category.show');
 Route::get('sub-category/{slug}', [FrontendProductController::class, 'subcategory'])->name('subcategory.show');
-Route::get('blog', [FrontendBlogController::class, 'index'])->name('blog.index');
-Route::get('blog/{slug}', [FrontendBlogController::class, 'show'])->name('blog.show');
-Route::get('blog-categories', [FrontendBlogController::class, 'categories'])->name('blog.categories');
-Route::get('blog-category/{slug}', [FrontendBlogController::class, 'category'])->name('blog.category.show');
+
+
+Route::get('blog', [App\Http\Controllers\Frontend\BlogController::class, 'allBlogs'])->name('blog.index');  // Home page itself is not loading without it
+Route::get('blog/{slug}', [FrontendBlogController::class, 'show'])->name('blog.show');                      // Home page itself is not loading without it
+Route::get('blog-categories', [FrontendBlogController::class, 'categories'])->name('blog.categories');      // single blog page is not opeing laravel error without it
+// Route::get('blog-category/{slug}', [FrontendBlogController::class, 'category'])->name('blog.category.show'); Not used anywhere as of now 
+
 
 // Cart Routes (Fixed grouping)
 Route::prefix('cart')->name('cart.')->group(function () {

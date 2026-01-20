@@ -84,7 +84,7 @@
                         </button>
                     </form>
                 </nav>
-            </div>
+            </div> 
 
             <!-- Main Content -->
             <div class="col-md-10">

@@ -162,7 +162,7 @@
                         .then(response => response.json())
                         .then(result => {
                             if (result.url) {
-                                resolve({ default: result.url });
+                                resolve({ default: result.url }); 
                             } else {
                                 reject(result.error || 'Upload failed');
                             }

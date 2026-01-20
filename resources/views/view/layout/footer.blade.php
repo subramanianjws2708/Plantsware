@@ -1,7 +1,7 @@
 <!-- footer -->
 <footer class="footer">
-    <div class="container">
-        <div class="row">
+    <div class="container"> 
+        <div class="row"> 
             <!-- First Column: About -->
             <div class="col-lg-3 col-md-6 mb-4">
                 <h5>About Us</h5>
@@ -216,6 +216,7 @@
 </script>
 
 <script>
+
     $(document).ready(function() {
         // Initialize the carousel
         $('#plantCategoriesCarousel').slick({
@@ -267,7 +268,23 @@
             $('#plantCategoriesCarousel').slick('slickNext');
         });
     });
+
+
+    
 </script>
+
+<!-- blog sharing section -->
+<script>
+function copyBlogLink() {
+    navigator.clipboard.writeText(window.location.href)
+        .then(() => {
+            alert('Blog link copied! You can paste it on Instagram.');
+        });
+}
+</script>
+
+<!-- blog sharing section end  -->
+
 
 </body>
 

@@ -84,7 +84,7 @@
                         <div class="carousel-caption container silder_text">
                             <p class="arrival">Complete Care for Every Plant</p>
                             <h5 class="headding">From Soil to<br>Bloom Naturally</h5>
-                            <a type="btn" class="shop-now">Shop Now</a>
+                            <a type="btn" class="shop-now">Shop Now </a>
                         </div>
                     </div>
                 </div>
@@ -310,9 +310,17 @@
     <div class="banner-content">
         <h1 class="big-title">Fresh Plant-Based Goodness</h1>
         <p class="small-title">Discover our organic, sustainable products for a healthier lifestyle</p>
-        <a href="#" class="contact-btn">Shop Now <i class="fas fa-leaf"></i></a>
+        <a href="#" class="contact-btn">Shop Now  <i class="fas fa-leaf"></i></a>
     </div>
 </section>
+
+<!-- Blog section should go here (unchanged) -->
+@include('view.layout.blog')
+<!-- Blog section should end here -->
+
+
+
+
 @include('view.layout.footer')
 
 <!-- Show notification after Add to Cart (shows Bootstrap alert for 2s) -->

@@ -1,6 +1,54 @@
 @include('view.layout.header')
 
-<div class="sp_header bg-white p-3">
+<style>
+    .single-blog-share {
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        flex-direction: row;
+        gap: 15px; /* Add space between icons */
+        flex-wrap: nowrap; /* Prevent wrapping */
+        margin: 20px 0;
+    }
+
+    .single-blog-share .share-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        display: flex; /* Changed from inline-flex to flex */
+        align-items: center !important;
+        justify-content: center !important;
+        color: #fff;
+        font-size: 18px;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+        border: none;
+        text-decoration: none; /* Remove underline from links */
+        cursor: pointer;
+        padding: 0; /* Reset padding */
+    }
+
+    .single-blog-share .share-btn:hover {
+        transform: translateY(-2px);
+        opacity: 0.9;
+    }
+
+    .share-btn.facebook { background: #1877f2; }
+    .share-btn.linkedin { background: #0a66c2; }
+    .share-btn.twitter  { background: #1da1f2; }
+    .share-btn.instagram {
+        background: radial-gradient(circle at 30% 107%,
+            #fdf497 0%, #fdf497 5%,
+            #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    }
+    
+    /* Make sure the icons are properly centered */
+    .single-blog-share .share-btn i {
+        display: block;
+        line-height: 1;
+    }
+</style>
+
+<div class="sp_header bg-white p-3"> 
     <div class="container">
         <div class="row">
             <div class="col-12">
@@ -9,12 +57,12 @@
                     <li class="d-inline-block font-weight-bolder mx-2">/</li>
                     <li class="d-inline-block font-weight-bolder"><a href="{{ route('blog.categories') }}" class="text-decoration-none">Blogs</a></li>
                     @if(isset($blog) && $blog->category)
-                    <li class="d-inline-block font-weight-bolder mx-2">/</li>
-                    <li class="d-inline-block font-weight-bolder"><a href="{{ route('blog.category.show', $blog->category->slug) }}" class="text-decoration-none">{{ $blog->category->name }}</a></li>
+                        <li class="d-inline-block font-weight-bolder mx-2">/</li>
+                        <li class="d-inline-block font-weight-bolder"><a href="{{ route('blog.category.show', $blog->category->slug) }}" class="text-decoration-none">{{ $blog->category->name }}</a></li>
                     @endif
                     @if(isset($blog))
-                    <li class="d-inline-block font-weight-bolder mx-2">/</li>
-                    <li class="d-inline-block font-weight-bolder"><a href="#" class="text-decoration-none">{{ $blog->title }}</a></li>
+                        <li class="d-inline-block font-weight-bolder mx-2">/</li>
+                        <li class="d-inline-block font-weight-bolder"><a href="#" class="text-decoration-none">{{ $blog->title }}</a></li>
                     @endif
                 </ul>
             </div>
@@ -27,139 +75,75 @@
         <div class="row">
             <!-- Article Main -->
             <div class="col-lg-8">
-                <!-- Article Header -->
                 @if(isset($blog))
-                <article class="single-blog-header">
-                    @if($blog->category)
-                        <span class="single-blog-category">{{ $blog->category->name }}</span>
+                    <!-- Article Header -->
+                    <article class="single-blog-header">
+                        @if($blog->category)
+                            <span class="single-blog-category">{{ $blog->category->name }}</span>
+                        @endif
+                        <h1 class="single-blog-title">{{ $blog->title }}</h1>
+                        <div class="single-blog-meta">
+                            <div class="single-blog-meta-item">
+                                <span class="single-blog-meta-item-label">By</span>
+                                <span>{{ $blog->author_name ?? 'Admin' }}</span>
+                            </div>
+                            <div class="single-blog-meta-item">
+                                <span class="single-blog-meta-item-label">Published</span>
+                                <span>{{ $blog->published_at ? $blog->published_at->format('F d, Y') : $blog->created_at->format('F d, Y') }}</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <!-- Featured Image -->
+                    @if($blog->image)
+                        <div class="single-blog-image">
+                            <img src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->title }}" class="img-fluid">
+                        </div>
+                    @else
+                        <div class="single-blog-image">
+                            <img src="{{ asset('assets/images/product/product5.jpg') }}" alt="{{ $blog->title }}" class="img-fluid">
+                        </div>
                     @endif
-                    <h1 class="single-blog-title">{{ $blog->title }}</h1>
-                    <div class="single-blog-meta">
-                        <div class="single-blog-meta-item">
-                            <span class="single-blog-meta-item-label">By</span>
-                            <span>{{ $blog->author_name ?? 'Admin' }}</span>
+
+                    <!-- Article Body / Content -->
+
+<div class="single-blog-body">
+    {!! \Illuminate\Support\Str::of($blog->content)
+        ->replaceMatches('/<figure class="media">\s*<div data-oembed-url="([^"]+)">[\s\S]*?<\/figure>/', function ($match) {
+            $url = $match[1];
+
+            // YouTube detection
+            if (str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be')) {
+                preg_match('/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $url, $m);
+                $videoId = $m[1] ?? '';
+                if ($videoId) {
+
+       return '<div class="mb-4 youtube-video-embed" style="width: 70%;">
+            <div style="position: relative; padding-bottom: 56.25%; height: 0; min-height: 200px; background: #000;">
+                <iframe src="https://www.youtube.com/embed/' . $videoId . '?rel=0&modestbranding=1" 
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                        title="YouTube video" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen></iframe>
+            </div>
+        </div>';
+                }
+            }
+
+            // Generic fallback
+            return '<div class="youtube-video-wrapper mb-4">
+                        <div class="ratio ratio-16x9">
+                            <iframe src="' . $url . '" 
+                                    frameborder="0" 
+                                    allowfullscreen></iframe>
                         </div>
-                        <div class="single-blog-meta-item">
-                            <span class="single-blog-meta-item-label">Published</span>
-                            <span>{{ $blog->published_at ? $blog->published_at->format('F d, Y') : $blog->created_at->format('F d, Y') }}</span>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Featured Image -->
-                @if($blog->image)
-                <div class="single-blog-image">
-                    <img src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->title }}">
-                </div>
-                @else
-                <div class="single-blog-image">
-                    <img src="{{ asset('assets/images/product/product5.jpg') }}" alt="{{ $blog->title }}">
-                </div>
+                    </div>';
+        })
+        ->toHtmlString() !!}
+</div>
+                                    @else
+                    <p>Blog post not found.</p>
                 @endif
-
-                <!-- Article Body -->
-                <div class="single-blog-body">
-                    {!! $blog->content !!}
-                @else
-                <p>Blog not found.</p>
-                @endif
-
-                    <div class="single-blog-highlight-box">
-                        <strong>Key Takeaway:</strong> Investing in quality garden products doesn't just make gardening easier—it can significantly improve plant health, increase yields, and make your gardening experience more enjoyable.
-                    </div>
-
-                    <h2>Essential Gardening Tools</h2>
-                    <p>Having the right tools is fundamental to successful gardening. While you don't need every tool on the market, these basics will cover most gardening tasks:</p>
-
-                    <h3>1. Hand Tools</h3>
-                    <p>These are the workhorses of any garden shed:</p>
-                    <ul>
-                        <li><strong>Trowel:</strong> Essential for planting, transplanting, and weeding</li>
-                        <li><strong>Hand Fork:</strong> Perfect for loosening soil and removing weeds</li>
-                        <li><strong>Pruners:</strong> For trimming, deadheading, and harvesting</li>
-                        <li><strong>Garden Gloves:</strong> Protect your hands from thorns, dirt, and chemicals</li>
-                    </ul>
-
-                    <h3>2. Long-Handled Tools</h3>
-                    <p>For larger garden areas, these tools save time and effort:</p>
-                    <ul>
-                        <li><strong>Shovel:</strong> For digging holes and moving soil</li>
-                        <li><strong>Garden Fork:</strong> Excellent for turning compost and aerating soil</li>
-                        <li><strong>Rake:</strong> For leveling soil and clearing debris</li>
-                        <li><strong>Hoe:</strong> Essential for weeding between rows</li>
-                    </ul>
-
-                    <h2>Soil and Fertilizer Products</h2>
-                    <p>Healthy soil is the foundation of a successful garden. These products help create optimal growing conditions:</p>
-
-                    <h3>1. Soil Amendments</h3>
-                    <p>Improve your soil structure and fertility with these amendments:</p>
-                    <ul>
-                        <li><strong>Compost:</strong> Adds nutrients and improves soil texture</li>
-                        <li><strong>Peat Moss:</strong> Helps retain moisture in sandy soils</li>
-                        <li><strong>Perlite/Vermiculite:</strong> Improves drainage and aeration</li>
-                        <li><strong>Lime:</strong> Adjusts soil pH for optimal plant growth</li>
-                    </ul>
-
-                    <h3>2. Fertilizers</h3>
-                    <p>Provide essential nutrients for plant growth:</p>
-                    <ul>
-                        <li><strong>All-Purpose Granular Fertilizer:</strong> Slow-release nutrients for general use</li>
-                        <li><strong>Liquid Fertilizer:</strong> Quick-acting nutrients for fast results</li>
-                        <li><strong>Organic Options:</strong> Fish emulsion, bone meal, and kelp meal</li>
-                        <li><strong>Specialty Fertilizers:</strong> Formulated for specific plants like tomatoes or roses</li>
-                    </ul>
-
-                    <h2>Watering and Irrigation Products</h2>
-                    <p>Proper watering is crucial for plant health. These products help deliver water efficiently:</p>
-
-                    <h3>1. Basic Watering Tools</h3>
-                    <p>Start with these essentials:</p>
-                    <ul>
-                        <li><strong>Watering Can:</strong> For precise watering of containers and seedlings</li>
-                        <li><strong>Garden Hose:</strong> Choose a durable, kink-resistant model</li>
-                        <li><strong>Spray Nozzle:</strong> Provides different spray patterns for various tasks</li>
-                        <li><strong>Watering Wand:</strong> Reaches hanging baskets and hard-to-access areas</li>
-                    </ul>
-
-                    <h3>2. Irrigation Systems</h3>
-                    <p>For larger gardens or busy gardeners:</p>
-                    <ul>
-                        <li><strong>Soaker Hoses:</strong> Deliver water directly to plant roots with minimal evaporation</li>
-                        <li><strong>Drip Irrigation:</strong> Highly efficient system for precise watering</li>
-                        <li><strong>Sprinklers:</strong> Good for lawns and large garden areas</li>
-                        <li><strong>Timers:</strong> Automate your watering schedule</li>
-                    </ul>
-
-                    <div class="single-blog-highlight-box">
-                        <strong>Pro Tip:</strong> Water early in the morning to reduce evaporation and prevent fungal diseases. Deep, infrequent watering encourages stronger root systems.
-                    </div>
-
-                    <h2>Pest and Disease Control</h2>
-                    <p>Protect your plants from common garden problems:</p>
-
-                    <h3>1. Organic Solutions</h3>
-                    <p>Environmentally friendly options for pest control:</p>
-                    <ul>
-                        <li><strong>Neem Oil:</strong> Effective against many common garden pests</li>
-                        <li><strong>Insecticidal Soap:</strong> Controls soft-bodied insects like aphids</li>
-                        <li><strong>Diatomaceous Earth:</strong> Natural powder that deters crawling insects</li>
-                        <li><strong>Companion Plants:</strong> Marigolds, basil, and other plants that repel pests</li>
-                    </ul>
-
-                    <h3>2. Physical Barriers</h3>
-                    <p>Prevent pests from reaching your plants:</p>
-                    <ul>
-                        <li><strong>Row Covers:</strong> Protect plants from insects and light frost</li>
-                        <li><strong>Bird Netting:</strong> Keep birds away from fruits and berries</li>
-                        <li><strong>Copper Tape:</strong> Deters slugs and snails</li>
-                        <li><strong>Plant Cages/Stakes:</strong> Support plants and keep them off the ground</li>
-                    </ul>
-
-                    <h2>Conclusion</h2>
-                    <p>Building a collection of essential garden products is an investment that pays off in healthier plants, higher yields, and more enjoyable gardening experiences. Start with the basics, then gradually add specialized products as your garden grows and your skills develop. Remember that quality matters—well-made tools and products will last for years and perform better than cheaper alternatives.</p>
-                </div>
-
             </div>
 
             <!-- Sidebar -->
@@ -183,13 +167,55 @@
                     <a href="#" class="single-blog-sidebar-link">Budget-Friendly Garden Products</a>
                     <a href="#" class="single-blog-sidebar-link">Eco-Friendly Garden Supplies</a>
                 </div>
-
             </div>
         </div>
     </div>
 </section>
 
 
+<!-- social share section  -->
+ @if(isset($blog))
+<div class="single-blog-share mt-5">
+    <h5 class="mb-3 fw-bold">Share this article</h5>
 
+    @php
+        $shareUrl = urlencode(url()->current());
+        $shareTitle = urlencode($blog->title);
+    @endphp
+
+    <div class="d-flex align-items-center gap-3">
+        <!-- Facebook -->
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ $shareUrl }}"
+           target="_blank"
+           class="share-btn facebook"
+           title="Share on Facebook">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+
+        <!-- LinkedIn -->
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ $shareUrl }}"
+           target="_blank"
+           class="share-btn linkedin"
+           title="Share on LinkedIn">
+            <i class="fab fa-linkedin-in"></i>
+        </a>
+
+        <!-- Twitter / X (optional but recommended) -->
+        <a href="https://twitter.com/intent/tweet?url={{ $shareUrl }}&text={{ $shareTitle }}"
+           target="_blank"
+           class="share-btn twitter"
+           title="Share on Twitter">
+            <i class="fab fa-twitter"></i>
+        </a>
+
+        <!-- Instagram (copy link) -->
+        <button onclick="copyBlogLink()" class="share-btn instagram" title="Copy link for Instagram">
+            <i class="fab fa-instagram"></i>
+        </button>
+    </div>
+</div>
+@endif
+
+ <!-- social share section end  -->
 
 @include('view.layout.footer')
